@@ -8,15 +8,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/usuarios")
@@ -35,7 +32,7 @@ public class UsuarioController {
         return ResponseEntity.created(uri).body(response);
     }
 
-    @PutMapping("/me")
+    @PutMapping("/perfil")
     public ResponseEntity<UsuarioResponse> update(
             @RequestBody @Valid UsuarioUpdateDto updateDto,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -44,19 +41,7 @@ public class UsuarioController {
         return ResponseEntity.ok(service.update(email, updateDto));
     }
 
-    @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<UsuarioResponse> findAll() {
-        return service.findAll();
-    }
-
-    @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public UsuarioResponse findById(@PathVariable UUID id) {
-        return service.findById(id);
-    }
-
-    @DeleteMapping("/perfil/me")
+    @DeleteMapping("/perfil")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@AuthenticationPrincipal UserDetails userDetails) {
         String email = userDetails.getUsername();

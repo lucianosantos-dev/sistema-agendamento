@@ -2,10 +2,7 @@ package com.lucianodev.sistemaagendamento.controller.handler;
 
 
 import com.lucianodev.sistemaagendamento.dto.CustomErrorDto;
-import com.lucianodev.sistemaagendamento.exception.ConflictException;
-import com.lucianodev.sistemaagendamento.exception.CredenciaisInvalidasException;
-import com.lucianodev.sistemaagendamento.exception.OperacaoInvalidaException;
-import com.lucianodev.sistemaagendamento.exception.ResourceNotFoundException;
+import com.lucianodev.sistemaagendamento.exception.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -37,6 +34,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(OperacaoInvalidaException.class)
     public ResponseEntity<CustomErrorDto> operacaoInvalida(OperacaoInvalidaException e, HttpServletRequest request) {
+        return builderResponse(HttpStatus.FORBIDDEN, e.getMessage(), request);
+    }
+
+    @ExceptionHandler(AcessoNegadoException.class)
+    public ResponseEntity<CustomErrorDto> acessoNegado(AcessoNegadoException e, HttpServletRequest request){
         return builderResponse(HttpStatus.FORBIDDEN, e.getMessage(), request);
     }
 
