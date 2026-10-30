@@ -42,6 +42,11 @@ public class GlobalExceptionHandler {
         return builderResponse(HttpStatus.FORBIDDEN, e.getMessage(), request);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<CustomErrorDto> handleIllegalArgumentException(IllegalArgumentException e, HttpServletRequest request) {
+        return builderResponse(HttpStatus.BAD_REQUEST, e.getMessage(), request);
+    }
+
     @ExceptionHandler(CredenciaisInvalidasException.class)
     public ResponseEntity<CustomErrorDto> credenciaisInvalidas(CredenciaisInvalidasException e, HttpServletRequest request) {
         return builderResponse(HttpStatus.UNAUTHORIZED, e.getMessage(), request);
