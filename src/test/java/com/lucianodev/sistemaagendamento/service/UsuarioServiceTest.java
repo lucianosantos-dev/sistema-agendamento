@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class UsuarioTest {
+public class UsuarioServiceTest {
 
     private Usuario usuario;
     private UsuarioCreateDto createDto;
