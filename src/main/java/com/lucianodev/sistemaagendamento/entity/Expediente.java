@@ -1,5 +1,6 @@
 package com.lucianodev.sistemaagendamento.entity;
 
+import com.lucianodev.sistemaagendamento.exception.HorarioInvalidoException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,18 +35,21 @@ public class Expediente {
     @Column(name = "hora_fim", nullable = false)
     private LocalTime horaFim;
 
-    @PrePersist
-    @PreUpdate
-    public void validar() {
-        if (this.horaInicio != null && this.horaFim != null &&
-                !this.horaFim.isAfter(this.horaInicio)) {
-            throw new IllegalArgumentException("Hora fim deve ser posterior a hora inicio.");
+    public void validarHorario(LocalTime inicio, LocalTime fim) {
+        if (inicio == null || fim == null || !fim.isAfter(inicio)) {
+            throw new HorarioInvalidoException("Hora fim deve ser posterior a hora inicio.");
         }
     }
 
+    @PrePersist
+    @PreUpdate
+    public void validar() {
+        validarHorario(this.horaInicio, this.horaFim);
+    }
+
     public void alterarHorario(LocalTime novaHoraInicio, LocalTime novaHoraFim) {
+        validarHorario(novaHoraInicio, novaHoraFim);
         this.horaInicio = novaHoraInicio;
         this.horaFim = novaHoraFim;
-        validar();
     }
 }

@@ -54,7 +54,7 @@ Os testes unitários da camada de serviço usam JUnit 5 e Mockito, com o padrão
 
 ## 💻 Tecnologias Utilizadas
 
-- **Backend:** Java 21, Spring Boot 3, Spring Security, Spring Data JPA, Hibernate, MapStruct, Lombok, Maven.
+- **Backend:** Java 21, Spring Boot 4, Spring Security, Spring Data JPA, Hibernate, MapStruct, Lombok, Maven.
 - **Banco de Dados:** PostgreSQL, migrations com Flyway.
 - **Inteligência Artificial (em desenvolvimento):** Python, Pandas, Scikit-learn.
 - **Infraestrutura:** Docker, Docker Compose, GitHub Actions (CI).

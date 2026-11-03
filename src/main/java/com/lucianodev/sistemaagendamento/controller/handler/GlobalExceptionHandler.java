@@ -47,6 +47,11 @@ public class GlobalExceptionHandler {
         return builderResponse(HttpStatus.BAD_REQUEST, e.getMessage(), request);
     }
 
+    @ExceptionHandler(HorarioInvalidoException.class)
+    public ResponseEntity<CustomErrorDto> horarioInvalido(HorarioInvalidoException e, HttpServletRequest request) {
+        return builderResponse(HttpStatus.BAD_REQUEST, e.getMessage(), request);
+    }
+
     @ExceptionHandler(CredenciaisInvalidasException.class)
     public ResponseEntity<CustomErrorDto> credenciaisInvalidas(CredenciaisInvalidasException e, HttpServletRequest request) {
         return builderResponse(HttpStatus.UNAUTHORIZED, e.getMessage(), request);
