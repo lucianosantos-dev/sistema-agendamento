@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "agendamentos")
-//@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Agendamento {
 
