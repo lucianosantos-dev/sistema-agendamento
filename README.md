@@ -52,6 +52,10 @@ Os testes unitários da camada de serviço usam JUnit 5 e Mockito, com o padrão
 
 ![MER](docs/diagramas/mer.drawio.png)
 
+**Modelo Diagrama de Classes (UML)**
+
+![UML](docs/diagramas/diagrama-classe.png)
+
 ## 💻 Tecnologias Utilizadas
 
 - **Backend:** Java 21, Spring Boot 4, Spring Security, Spring Data JPA, Hibernate, MapStruct, Lombok, Maven.
