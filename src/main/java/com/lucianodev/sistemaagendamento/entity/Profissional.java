@@ -34,4 +34,12 @@ public class Profissional {
             joinColumns = @JoinColumn(name = "profissional_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "servico_id", nullable = false))
     private Set<Servico> servicos = new HashSet<>();
+
+    public void adicionarServico(Servico servico) {
+        this.servicos.add(servico);
+    }
+
+    public void removerServico(Servico servico) {
+        this.servicos.remove(servico);
+    }
 }
