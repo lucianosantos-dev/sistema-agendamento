@@ -2,6 +2,9 @@ package com.lucianodev.sistemaagendamento.repository;
 
 import com.lucianodev.sistemaagendamento.entity.Agendamento;
 import com.lucianodev.sistemaagendamento.enums.StatusAgendamento;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,7 +17,22 @@ import java.util.UUID;
 @Repository
 public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID> {
 
-    boolean existsByClienteIdAndStatusIn(UUID clienteId, List<StatusAgendamento> status);
+
+    @Query("""
+            SELECT COUNT(a) > 0
+            FROM Agendamento a
+            WHERE a.cliente.id = :clienteId
+            AND a.status IN :status
+            AND a.dataHoraInicio < :fim
+            AND a.dataHoraFim > :inicio
+            """)
+    boolean existsConflitoHorario(@Param("clienteId") UUID clienteId,
+                                  @Param("fim") LocalDateTime inicio,
+                                  @Param("inicio") LocalDateTime fim,
+                                  @Param("status") List<StatusAgendamento> status);
+
+    @EntityGraph(attributePaths = "profissional")
+    Page<Agendamento> findByClienteUsuarioEmail(String email, Pageable pageable);
 
 
     @Query("""
