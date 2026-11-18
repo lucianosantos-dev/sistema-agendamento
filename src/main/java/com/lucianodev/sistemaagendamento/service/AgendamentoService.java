@@ -10,6 +10,8 @@ import com.lucianodev.sistemaagendamento.exception.ResourceNotFoundException;
 import com.lucianodev.sistemaagendamento.mapper.AgendamentoMapper;
 import com.lucianodev.sistemaagendamento.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,6 +68,17 @@ public class AgendamentoService {
         return agendamentoMapper.toResponse(salvo);
     }
 
+
+    @Transactional(readOnly = true)
+    public Page<AgendamentoResponse> findAll(String email, Pageable pageable) {
+        Cliente cliente = clienteRepository.findByUsuarioEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente não encontrado"));
+
+        Page<Agendamento> page = agendamentoRepository.findByClienteUsuarioEmail(email, pageable);
+
+        return page.map(agendamentoMapper::toResponse);
+    }
+
     private void validarDadosDeEntrada(AgendamentoCreateDto dto) {
         if (dto.servicosIds().stream().distinct().count() != dto.servicosIds().size()) {
             throw new BusinessException("A lista de serviços não pode ter IDs repetidos.");
@@ -111,8 +124,13 @@ public class AgendamentoService {
         if (agendamentoRepository.existsConflictParaProfissional(profissionalId, inicio, fim, statusBloqueantes)) {
             throw new ConflictException("O profissional selecionado já possui um agendamento nesse horário.");
         }
-        if (agendamentoRepository.existsByClienteIdAndStatusIn(agendamento.getCliente().getId(), statusBloqueantes)) {
-            throw new ConflictException("Já existe um agendamento para o cliente com id: " + agendamento.getCliente().getId());
+        if (agendamentoRepository.existsConflitoHorario(
+                agendamento.getCliente().getId(),
+                agendamento.getDataHoraInicio(),
+                agendamento.getDataHoraFim(),
+                statusBloqueantes)) {
+            throw new ConflictException
+                    ("O cliente com id " + agendamento.getCliente().getId() + " já possui um agendamento neste intervalo de horário.");
         }
 
     }
