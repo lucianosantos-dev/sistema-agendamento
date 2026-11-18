@@ -5,10 +5,12 @@ import com.lucianodev.sistemaagendamento.dto.request.ProfissionalCreateDto;
 import com.lucianodev.sistemaagendamento.dto.request.ProfissionalUpdateDto;
 import com.lucianodev.sistemaagendamento.dto.response.ProfissionalResponse;
 import com.lucianodev.sistemaagendamento.entity.Profissional;
+import com.lucianodev.sistemaagendamento.entity.Servico;
 import com.lucianodev.sistemaagendamento.exception.ConflictException;
 import com.lucianodev.sistemaagendamento.exception.ResourceNotFoundException;
 import com.lucianodev.sistemaagendamento.mapper.ProfissionalMapper;
 import com.lucianodev.sistemaagendamento.repository.ProfissionalRepository;
+import com.lucianodev.sistemaagendamento.repository.ServicoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ import java.util.UUID;
 public class ProfissionalService {
 
     private final ProfissionalRepository profissionalRepository;
+    private final ServicoRepository servicoRepository;
     private final ProfissionalMapper profissionalMapper;
 
 
@@ -60,5 +63,30 @@ public class ProfissionalService {
                 .stream()
                 .map(profissionalMapper::toResponse)
                 .toList();
+    }
+
+    @Transactional
+    public void associarServicos(UUID profissionalId, List<UUID> servicosIds) {
+        Profissional entity = profissionalRepository.findById(profissionalId)
+                .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado."));
+
+        List<Servico> servicos = servicoRepository.findAllById(servicosIds);
+
+        if (servicos.size() != servicosIds.size()) {
+            throw new ResourceNotFoundException("Um ou mais serviço(s) informados não foram encontrados.");
+        }
+
+        servicos.forEach(entity::adicionarServico);
+    }
+
+    @Transactional
+    public void removerServico(UUID profissionalId, UUID servicoId) {
+        Profissional entity = profissionalRepository.findById(profissionalId)
+                .orElseThrow(() -> new ResourceNotFoundException("Profissional não encontrado."));
+
+        Servico servico = servicoRepository.findById(servicoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado."));
+
+        entity.removerServico(servico);
     }
 }
