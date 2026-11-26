@@ -7,6 +7,7 @@ import com.lucianodev.sistemaagendamento.dto.request.ProfissionalUpdateDto;
 import com.lucianodev.sistemaagendamento.dto.response.ProfissionalResponse;
 import com.lucianodev.sistemaagendamento.entity.Profissional;
 
+import java.util.HashSet;
 import java.util.UUID;
 
 public class ProfissionalFactory {
@@ -17,7 +18,8 @@ public class ProfissionalFactory {
         return new Profissional(
                 ID_PADRAO,
                 "Marcos Santos",
-                "Barbeiro"
+                "Barbeiro",
+                new HashSet<>()
         );
     }
 

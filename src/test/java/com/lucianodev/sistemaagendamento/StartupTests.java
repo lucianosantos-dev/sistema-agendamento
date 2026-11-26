@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 @EnableAutoConfiguration(exclude = {SecurityAutoConfiguration.class})
-class SistemaagendamentoApplicationTests {
+class StartupTests {
 
     @Test
     void contextLoads() {
