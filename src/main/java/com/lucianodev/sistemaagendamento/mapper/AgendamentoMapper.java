@@ -7,10 +7,6 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface AgendamentoMapper {
-
-
-    //Agendamento toEntity(AgendamentoCreateDto dto);
-
     @Mapping(source = "profissional.nome", target = "nomeProfissional")
     @Mapping(source = "dataHoraInicio", target = "inicio")
     @Mapping(source = "dataHoraFim", target = "fim")
