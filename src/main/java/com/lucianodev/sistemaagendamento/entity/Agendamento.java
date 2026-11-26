@@ -7,10 +7,8 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "agendamentos")
@@ -30,10 +28,10 @@ public class Agendamento {
     @JoinColumn(name = "profissional_id", nullable = false)
     private Profissional profissional;
 
-    @Column(name = "data_hora_inicio", nullable = false, updatable = false)
+    @Column(name = "data_hora_inicio", nullable = false)
     private LocalDateTime dataHoraInicio;
 
-    @Column(name = "data_hora_fim", nullable = false, updatable = false)
+    @Column(name = "data_hora_fim", nullable = false)
     private LocalDateTime dataHoraFim;
 
     @Column(length = 20, nullable = false)
@@ -53,7 +51,7 @@ public class Agendamento {
     private LocalDateTime criadoEm;
 
 
-    @OneToMany(mappedBy = "agendamento", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "agendamento", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AgendamentoServico> servicos = new ArrayList<>();
 
     public static Agendamento criar(Cliente cliente, Profissional profissional,
@@ -69,6 +67,54 @@ public class Agendamento {
         servicosEscolhidos.forEach(servico -> agendamento.servicos.add(new AgendamentoServico(agendamento, servico)));
         agendamento.dataHoraFim = inicio.plusMinutes(agendamento.calcularDuracaoTotalMinutos());
         return agendamento;
+    }
+
+    public void remarcar(Profissional profissional,
+                         LocalDateTime novoInicio,
+                         List<Servico> novosServicosEscolhidos) {
+
+        if (status != StatusAgendamento.PENDENTE && status != StatusAgendamento.CONFIRMADO) {
+            throw new BusinessException("Apenas agendamentos pendentes ou confirmados podem sofrer alterações.");
+        }
+
+        if (qtdRemarcacoes >= 2) {
+            throw new BusinessException("Limite de remarcações atingidas para esse agendamento.");
+        }
+
+        if (novosServicosEscolhidos == null || novosServicosEscolhidos.isEmpty()) {
+            throw new BusinessException("O agendamento deve possuir ao menos um serviço");
+        }
+
+        Set<UUID> idsServicosAtuais = servicos.stream()
+                .map(item -> item.getServico().getId())
+                .collect(Collectors.toSet());
+
+        Set<UUID> idsServicosNovos = novosServicosEscolhidos.stream()
+                .map(Servico::getId)
+                .collect(Collectors.toSet());
+
+        servicos.removeIf(s -> !idsServicosNovos.contains(s.getServico().getId()));
+
+        for (Servico servico : novosServicosEscolhidos) {
+            if (!idsServicosAtuais.contains(servico.getId())) {
+                servicos.add(new AgendamentoServico(this, servico));
+            }
+        }
+
+        this.profissional = profissional;
+
+        alterarHorario(novoInicio);
+        this.qtdRemarcacoes++;
+
+//        esse status sera modificado como pendente quando o servico de
+//         confirmacao estiver pronto, por enquanto continua como confirmado.
+
+        //this.status = StatusAgendamento.PENDENTE;
+    }
+
+    private void alterarHorario(LocalDateTime novoInicio) {
+        this.dataHoraInicio = novoInicio;
+        this.dataHoraFim = novoInicio.plusMinutes(calcularDuracaoTotalMinutos());
     }
 
     public void cancelar(LocalDateTime agora) {
