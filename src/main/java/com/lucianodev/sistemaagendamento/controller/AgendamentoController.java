@@ -1,8 +1,8 @@
 package com.lucianodev.sistemaagendamento.controller;
 
 import com.lucianodev.sistemaagendamento.dto.request.AgendamentoCreateDto;
+import com.lucianodev.sistemaagendamento.dto.request.AgendamentoUpdateDto;
 import com.lucianodev.sistemaagendamento.dto.response.AgendamentoResponse;
-import com.lucianodev.sistemaagendamento.entity.Agendamento;
 import com.lucianodev.sistemaagendamento.service.AgendamentoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/agendamentos")
@@ -40,11 +40,37 @@ public class AgendamentoController {
         return ResponseEntity.created(uri).body(response);
     }
 
+    @PatchMapping("/{id}/remarcar")
+    public ResponseEntity<AgendamentoResponse> remarcar(@PathVariable UUID id,
+                                                        @RequestBody @Valid AgendamentoUpdateDto dto,
+                                                        @AuthenticationPrincipal UserDetails userDetails) {
+
+        String email = userDetails.getUsername();
+
+        return ResponseEntity.ok(agendamentoService.atualizarAgendamento(id, dto, email));
+    }
+
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Page<AgendamentoResponse> findAll(@AuthenticationPrincipal UserDetails userDetails,
-                                             Pageable pageable) {
+    public Page<AgendamentoResponse> findAllByCliente(@AuthenticationPrincipal UserDetails userDetails,
+                                                      Pageable pageable) {
         String email = userDetails.getUsername();
-        return agendamentoService.findAll(email, pageable);
+        return agendamentoService.findAllByCliente(email, pageable);
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public AgendamentoResponse findByIdAndCliente(@PathVariable UUID id,
+                                                  @AuthenticationPrincipal UserDetails userDetails) {
+        String email = userDetails.getUsername();
+
+        return agendamentoService.findByIdAndCliente(id, email);
+    }
+
+    @PatchMapping("/{id}/cancelar")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void cancelar(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
+        String email = userDetails.getUsername();
+        agendamentoService.cancelarAgendamentoComoCliente(id, email);
     }
 }
