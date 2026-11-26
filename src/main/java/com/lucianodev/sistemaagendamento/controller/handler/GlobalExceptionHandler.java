@@ -2,8 +2,6 @@ package com.lucianodev.sistemaagendamento.controller.handler;
 
 
 import com.lucianodev.sistemaagendamento.dto.CustomErrorDto;
-import com.lucianodev.sistemaagendamento.dto.FieldMessageDto;
-import com.lucianodev.sistemaagendamento.dto.ValidationErrorDto;
 import com.lucianodev.sistemaagendamento.exception.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -14,7 +12,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
-import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -41,7 +38,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AcessoNegadoException.class)
-    public ResponseEntity<CustomErrorDto> acessoNegado(AcessoNegadoException e, HttpServletRequest request) {
+    public ResponseEntity<CustomErrorDto> acessoNegado(AcessoNegadoException e, HttpServletRequest request){
         return builderResponse(HttpStatus.FORBIDDEN, e.getMessage(), request);
     }
 
@@ -60,31 +57,17 @@ public class GlobalExceptionHandler {
         return builderResponse(HttpStatus.UNAUTHORIZED, e.getMessage(), request);
     }
 
-    @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<CustomErrorDto> business(BusinessException e, HttpServletRequest request) {
-        return builderResponse(HttpStatus.BAD_REQUEST, e.getMessage(), request);
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ValidationErrorDto> methodArgumentNotValid(MethodArgumentNotValidException e, HttpServletRequest request) {
-        List<FieldMessageDto> fieldMessage = e.getBindingResult().getFieldErrors().stream()
-                .map(err -> new FieldMessageDto(err.getField(), err.getDefaultMessage()))
-                .toList();
-
-        ValidationErrorDto errorDto = new ValidationErrorDto(
-                Instant.now(),
-                HttpStatus.UNPROCESSABLE_CONTENT.value(),
-                "Dados invalídos",
-                request.getRequestURI(),
-                fieldMessage
-        );
-
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body(errorDto);
+    public ResponseEntity<CustomErrorDto> methodArgumentNotValid(MethodArgumentNotValidException e, HttpServletRequest request) {
+        String msgLimpa = e.getBindingResult().getFieldErrors().stream()
+                .map(erro -> erro.getField() + ": " + erro.getDefaultMessage())
+                .findFirst()
+                .orElse("Erro de validação nos campos");
+        return builderResponse(HttpStatus.UNPROCESSABLE_CONTENT, msgLimpa, request);
     }
 
     public ResponseEntity<CustomErrorDto> builderResponse(HttpStatus status, String msg, HttpServletRequest request) {
         CustomErrorDto error = new CustomErrorDto(Instant.now(), status.value(), msg, request.getRequestURI());
         return ResponseEntity.status(status).body(error);
     }
-
 }

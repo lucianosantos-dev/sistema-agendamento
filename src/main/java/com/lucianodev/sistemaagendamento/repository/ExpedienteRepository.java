@@ -17,5 +17,4 @@ public interface ExpedienteRepository extends JpaRepository<Expediente, UUID> {
     boolean existsByProfissionalAndDiaSemana(Profissional profissional, DayOfWeek diaSemana);
     Page<Expediente> findAll(Pageable pageable);
     List<Expediente> findAllByProfissionalIdOrderByDiaSemanaAscHoraInicioAsc(UUID profissionalId);
-    List<Expediente> findAllByProfissionalIdAndDiaSemana(UUID profissionalId, DayOfWeek diaSemana);
 }
